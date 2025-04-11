@@ -49,6 +49,24 @@ func (h *BookHandler) GetBook(c *gin.Context) {
 	c.JSON(http.StatusOK, book)
 }
 
+func (h *BookHandler) AddBookToUser(c *gin.Context) {
+	userID := c.MustGet("userID").(uint)
+
+	bookID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book ID"})
+		return
+	}
+
+	err = h.service.AddBookToUser(userID, uint(bookID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to assign book"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Book added to user"})
+}
+
 func (h *BookHandler) CreateBook(c *gin.Context) {
 	var bookCreate models.BookEdit
 

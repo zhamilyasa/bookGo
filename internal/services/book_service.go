@@ -1,7 +1,9 @@
 package service
 
 import (
+	"gorm.io/gorm"
 	"rest-project/internal/models"
+	"time"
 )
 
 type BookRepository interface {
@@ -15,10 +17,14 @@ type BookRepository interface {
 
 type BookService struct {
 	repo BookRepository
+	db   *gorm.DB
 }
 
-func NewBookService(bookRepo BookRepository) *BookService {
-	return &BookService{repo: bookRepo}
+func NewBookService(bookRepo BookRepository, db *gorm.DB) *BookService {
+	return &BookService{
+		repo: bookRepo,
+		db:   db,
+	}
 }
 
 func (s *BookService) GetAllBooks() ([]models.Book, error) {
@@ -37,11 +43,24 @@ func (s *BookService) Create(title, author, publishedAt string, pages int) (*mod
 	book := &models.Book{
 		Title:       title,
 		Author:      author,
-		PublishedAt: publishedAt,
 		Pages:       pages,
+		PublishedAt: time.Now(),
 	}
 	err := s.repo.Create(book)
 	return book, err
+}
+func (s *BookService) AddBookToUser(userID uint, bookID uint) error {
+	var user models.User
+	if err := s.db.Preload("Books").First(&user, userID).Error; err != nil {
+		return err
+	}
+
+	var book models.Book
+	if err := s.db.First(&book, bookID).Error; err != nil {
+		return err
+	}
+
+	return s.db.Model(&user).Association("Books").Append(&book)
 }
 
 func (s *BookService) Update(id int, bookEdit *models.BookEdit) (*models.Book, error) {
