@@ -1,7 +1,8 @@
 CREATE TABLE books (
                        id SERIAL PRIMARY KEY,
                        title TEXT NOT NULL,
-                       author TEXT NOT NULL
+                       author TEXT NOT NULL,
+
 );
 
 CREATE TABLE user_books (

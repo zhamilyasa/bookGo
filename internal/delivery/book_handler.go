@@ -68,6 +68,7 @@ func (h *BookHandler) AddBookToUser(c *gin.Context) {
 }
 
 func (h *BookHandler) CreateBook(c *gin.Context) {
+
 	var bookCreate models.BookEdit
 
 	if err := c.ShouldBindJSON(&bookCreate); err != nil {
@@ -82,6 +83,7 @@ func (h *BookHandler) CreateBook(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, newBook)
+
 }
 
 func (h *BookHandler) UpdateBook(c *gin.Context) {
