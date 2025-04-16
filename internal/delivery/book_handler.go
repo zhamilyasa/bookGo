@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"rest-project/internal/models"
 	service "rest-project/internal/services"
@@ -69,14 +70,15 @@ func (h *BookHandler) AddBookToUser(c *gin.Context) {
 
 func (h *BookHandler) CreateBook(c *gin.Context) {
 
-	var bookCreate models.BookEdit
+	userID := c.MustGet("userID").(uint)
 
+	var bookCreate models.BookEdit
 	if err := c.ShouldBindJSON(&bookCreate); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	newBook, err := h.service.Create(bookCreate.Title, bookCreate.Author, bookCreate.PublishedAt, bookCreate.Pages)
+	newBook, err := h.service.Create(userID, bookCreate.Title, bookCreate.Author, bookCreate.PublishedAt, bookCreate.Pages)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create book"})
 		return
@@ -110,6 +112,7 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 
 func (h *BookHandler) DeleteBook(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
+	log.Println("DELETE endpoint reached") //
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid book ID"})
 		return

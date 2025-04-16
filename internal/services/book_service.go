@@ -39,16 +39,31 @@ func (s *BookService) GetBookByID(id int) (*models.Book, error) {
 	return s.repo.GetById(id)
 }
 
-func (s *BookService) Create(title, author, publishedAt string, pages int) (*models.Book, error) {
+func (s *BookService) Create(userID uint, title, author, publishedAt string, pages int) (*models.Book, error) {
 	book := &models.Book{
 		Title:       title,
 		Author:      author,
 		Pages:       pages,
-		PublishedAt: time.Now(),
+		PublishedAt: time.Now(), // можно парсить publishedAt, если хочешь
 	}
+
 	err := s.repo.Create(book)
-	return book, err
+	if err != nil {
+		return nil, err
+	}
+
+	// Привязываем книгу к пользователю
+	var user models.User
+	if err := s.db.First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+	if err := s.db.Model(&book).Association("Users").Append(&user); err != nil {
+		return nil, err
+	}
+
+	return book, nil
 }
+
 func (s *BookService) AddBookToUser(userID uint, bookID uint) error {
 	var user models.User
 	if err := s.db.Preload("Books").First(&user, userID).Error; err != nil {

@@ -23,13 +23,13 @@ func NewBookRepository(db *gorm.DB) *BookRepositoryImpl {
 
 func (r BookRepositoryImpl) GetAll() ([]models.Book, error) {
 	var books []models.Book
-	err := r.db.Find(&books).Error
+	err := r.db.Preload("Users").Find(&books).Error
 	return books, err
 }
 
 func (r BookRepositoryImpl) GetById(id int) (*models.Book, error) {
 	var book models.Book
-	err := r.db.First(&book, id).Error
+	err := r.db.Preload("Users").First(&book, id).Error
 	return &book, err
 }
 
