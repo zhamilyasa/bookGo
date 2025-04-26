@@ -1,0 +1,1 @@
+ALTER TABLE books ADD COLUMN creator_id INT REFERENCES users(id) ON DELETE SET NULL;

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func AuthRequired() gin.HandlerFunc {
+func AdminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -22,17 +22,16 @@ func AuthRequired() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
-		role, _ := claims["role"].(string)
+
+		role, ok := claims["role"].(string)
 		c.Set("role", role)
 
-		// user_id from claims
-		userIDFloat, ok := claims["user_id"].(float64)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token payload"})
+		if !ok || role != "admin" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "admin access required"})
 			return
 		}
 
-		c.Set("userID", uint(userIDFloat))
+		c.Set("userID", uint(claims["user_id"].(float64)))
 		c.Next()
 	}
 }
