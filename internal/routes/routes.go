@@ -18,13 +18,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 
 	books := r.Group("api/v1/books")
 	books.Use(middleware.AuthRequired())
-
-	// Публичные маршруты для любого авторизованного пользователя
 	books.GET("/", bookHandler.GetAllBooks)
 	books.GET("/:id", bookHandler.GetBook)
 	books.POST("/:id/assign", bookHandler.AddBookToUser)
 
-	// Только для админов
 	booksAdmin := books.Group("/")
 	booksAdmin.Use(middleware.AdminOnly())
 	booksAdmin.POST("/", bookHandler.CreateBook)

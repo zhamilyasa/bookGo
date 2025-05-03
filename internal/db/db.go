@@ -3,9 +3,13 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	migratepg "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -15,15 +19,20 @@ import (
 var DB *gorm.DB
 
 func InitDB() {
-	dbHost := "localhost"
-	dbName := "mydatabase"
-	dbUser := "myuser"
-	dbPass := "mypassword"
-	dbPort := "5432"
-	sslmode := "disable"
-	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", dbUser, dbPass, dbHost, dbPort, dbName, sslmode)
+	// Подгружаем .env
+	_ = godotenv.Load()
 
-	sqlDB, err := sql.Open("postgres", dbUrl)
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	sslmode := "disable"
+
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		dbUser, dbPassword, dbHost, dbPort, dbName, sslmode)
+
+	sqlDB, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal("SQL connection failed:", err)
 	}
