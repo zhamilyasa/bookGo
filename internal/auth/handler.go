@@ -70,13 +70,13 @@ func Login(c *gin.Context) {
 
 	token, err := GenerateJWT(user.ID, user.Role)
 
-	c.JSON(http.StatusOK, gin.H{
-		"role": user.Role, // Добавьте роль в ответ
-	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Token generation error"})
 		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"role":  user.Role,
+	})
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
 }
